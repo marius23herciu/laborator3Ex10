@@ -29,24 +29,31 @@ namespace laborator3Ex10
             int N = 1;
             Console.WriteLine("Introduceti numarul de glatite facute de bunica lui Arpsod(nu stiu de unde ati luat numele asta ☺)");
             int M = int.Parse(Console.ReadLine());
-            if (M<1)
+            if (M < 1)
             {
                 Console.Write("Macar o clatita a facut si bunica lui Arpsod, pune un numar mai mare de 0 :).");
                 return;
             }
-            
-            int ciocolata = NumerePrime(N, M);
-            int gem = PatratSauCubPerfect(N, M);
-            int inghetata = SumaDivizori(N, M);
 
-            int totalClatite = ciocolata + gem + inghetata;
+            int[] clatiteMancate = new int[M];
+
+            int ciocolata = NumerePrime(N, M, clatiteMancate);
+            int gem = PatratSauCubPerfect(N, M, clatiteMancate);
+            int inghetata = SumaDivizori(N, M, clatiteMancate);
+            int zahar = ClatiteZahar(clatiteMancate);
+            int simplu = ClatiteSimple(clatiteMancate);
+
+            int totalClatite = ciocolata + gem + inghetata + zahar + simplu;
+
             Console.WriteLine("Arpsod a mancat " + ciocolata + " clatite cu ciocolata, ");
             Console.WriteLine(gem + " clatite cu gem ");
-            Console.WriteLine("si " + inghetata + " clatite cu inghetata.");
+            Console.WriteLine(inghetata + " clatite cu inghetata ");
+            Console.WriteLine(zahar + " clatite cu zahar ");
+            Console.WriteLine("si " + simplu + " clatite simple.");
             Console.WriteLine("In total: " + totalClatite);
         }
 
-        static int NumerePrime(int N, int M)
+        static int NumerePrime(int N, int M, int[] clatiteMancate)
         {
             int ciocolata = 0;
             for (int i = N; i < M + 1; i++)
@@ -59,9 +66,10 @@ namespace laborator3Ex10
                 if (i == 2)
                 {
                     ciocolata++;
+                    clatiteMancate[i - 1] = i;
                     continue;
                 }
-                    if (i % 2 == 0)
+                if (i % 2 == 0)
                 {
                     continue;
                 }
@@ -71,94 +79,104 @@ namespace laborator3Ex10
                     if (i % j == 0)
                     {
                         flag++;
-                        break;
                     }
                     else
                     {
-                        flag++;
-                        ciocolata++;
-                        break ;
+                        if (j + 2 > radacinaPatrata && flag == 0)
+                        {
+                            ciocolata++;
+                            clatiteMancate[i - 1] = i;
+                            flag++;
+                        }
                     }
                 }
-                if (flag==0)
+                if (flag == 0)
                 {
                     ciocolata++;
+                    clatiteMancate[i - 1] = i;
                 }
             }
 
-            //for (int i = N; i < M+1; i++)
-            //{
-            //    if (i <= 1)
-            //    {
-            //        continue;
-            //    }
-            //    if (i == 2)
-            //    {
-            //        ciocolata++;
-            //        continue;
-            //    }
-            //    if (i % 2 == 0)
-            //    {
-            //        continue;
-            //    }
-
-            //    var boundary = (int)Math.Floor(Math.Sqrt(i));
-
-            //    for (int j  = 3; j <= boundary; j += 2)
-            //    {
-            //        if (i % j == 0)
-            //        {
-            //            continue;
-            //        }
-            //        else
-            //        {
-            //            ciocolata++;
-            //            continue;
-            //        }
-
-            //    }
-
-            //}
             return ciocolata;
         }
-        static int PatratSauCubPerfect(int N,int M)
+        static int PatratSauCubPerfect(int N, int M, int[] clatiteMancate)
         {
             int gem = 0;
-            for (int i = N; i < M+1; i++)
+            for (int i = N; i < M + 1; i++)
             {
                 double radacinaPatrata = Math.Sqrt(i);
-
+                int flag = 0;
                 if (radacinaPatrata % 1 == 0)
                 {
                     gem++;
+                    clatiteMancate[i - 1] = i;
+                    flag++;
                 }
                 double cub = Math.Round(Math.Pow(i, 1.0 / 3.0));
                 if (cub * cub * cub == i)
                 {
-                    gem++;
+                    if (flag == 0)
+                    {
+                        gem++;
+                        clatiteMancate[i - 1] = i;
+                    }
                 }
             }
+
             return gem;
         }
-        static int SumaDivizori(int N,int M)
+        static int SumaDivizori(int N, int M, int[] clatiteMancate)
         {
             int inghetata = 0;
-            for (int i = N+1; i < M+1; i++)
+            for (int i = N + 1; i < M + 1; i++)
             {
                 int sumaDivizorilor = 0;
                 for (int j = 1; j < i; j++)
                 {
-                    if (i%j==0)
+                    if (i % j == 0)
                     {
                         sumaDivizorilor += j;
                     }
                 }
-                if (sumaDivizorilor==i)
+                if (sumaDivizorilor == i)
                 {
                     inghetata++;
+                    clatiteMancate[i - 1] = i;
                 }
             }
             return inghetata;
+        }
+        static int ClatiteZahar(int[] clatiteMancate)
+        {
+            int zahar = 0;
+            for (int i = 0; i < clatiteMancate.Length; i++)
+            {
+                if (clatiteMancate[i] == 0)
+                {
+                    if ((i + 1) % 2 == 0)
+                    {
+                        zahar++;
+                        clatiteMancate[i] = (i + 1);
+                    }
+                }
+            }
+            return zahar;
+        }
+        static int ClatiteSimple(int[] clatiteMancate)
+        {
+            int simple = 0;
+            for (int i = 0; i < clatiteMancate.Length; i++)
+            {
+                if (clatiteMancate[i] == 0)
+                {
+                    if ((i + 1) % 2 != 0)
+                    {
+                        simple++;
+                        clatiteMancate[i] = (i + 1);
+                    }
+                }
+            }
+            return simple;
         }
     }
 }
